@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>たのしい ローマ字れんしゅう 1000</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    }
+
+    body {
+      background-color: #f0f9ff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+      padding: 25px;
+      text-align: center;
+      border: 4px solid #3b82f6;
+      position: relative;
+    }
+
+    h1 {
+      color: #1e3a8a;
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+
+    /* プログレスバー・カウンター */
+    .progress-container {
+      margin-bottom: 15px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      color: #475569;
+      font-size: 0.95rem;
+      margin-bottom: 5px;
+    }
+
+    .progress-bar-bg {
+      background-color: #e2e8f0;
+      border-radius: 10px;
+      height: 12px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .progress-bar-fill {
+      background-color: #22c55e;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* 問題カード */
+    .card {
+      background-color: #eff6ff;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 2px dashed #60a5fa;
+    }
+
+    .question-emoji {
+      font-size: 3.5rem;
+      line-height: 1.2;
+    }
+
+    .question-kana {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #1d4ed8;
+      margin: 5px 0;      letter-spacing: 2px;
+    }
+
+    .target-hint {
+      font-size: 1rem;
+      color: #64748b;
+    }
+
+    /* 入力エリア */
+    .input-display {
+      font-size: 2.3rem;
+      font-weight: bold;
+      letter-spacing: 4px;
+      min-height: 55px;
+      line-height: 55px;
+      background-color: #f8fafc;
+      border: 3px solid #cbd5e1;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      color: #0f172a;
+    }
+
+    .input-display.correct {
+      border-color: #22c55e;
+      background-color: #f0fdf4;
+      color: #15803d;
+      animation: bounce 0.4s ease;
+    }
+
+    /* トグルボタン（大文字／小文字切り替え） */
+    .toggle-container {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-toggle {
+      background-color: #e2e8f0;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #475569;
+      transition: all 0.2s;
+    }
+
+    .btn-toggle.active {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    /* 画面キーボード */
+    .keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .key-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .key-btn {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-bottom: 4px solid #1d4ed8;
+      border-radius: 8px;
+      width: 8.5%;
+      max-width: 42px;
+      height: 46px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s, background-color 0.1s;
+    }
+
+    .key-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    .key-btn.symbol {
+      background-color: #0284c7;
+      border-bottom-color: #0369a1;
+    }
+
+    .key-btn.backspace {
+      width: 15%;
+      max-width: 65px;
+      background-color: #ef4444;
+      border-bottom-color: #b91c1c;
+      font-size: 0.95rem;
+    }
+
+    /* 次に打つキーのハイライトアニメーション付きスタイル */
+    .key-btn.next-key {
+      background-color: #f59e0b !important;
+      border-bottom-color: #d97706 !important;
+      animation: pulse-key 1.2s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse-key {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0px rgba(245, 158, 11, 0);
+      }
+      100% {
+        transform: scale(1.08);
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);
+      }
+    }
+
+    .message {
+      font-size: 1.2rem;
+      font-weight: bold;
+      height: 30px;
+      margin-top: 10px;
+      color: #16a34a;
+    }
+
+    /* ローディング画面 */
+    .loading {
+      font-size: 1.5rem;
+      color: #1e3a8a;
+      padding: 50px 0;
+      font-weight: bold;
+    }
+
+    .back-link {
+      margin-top: 15px;
+    }
+
+    .back-link a {
+      color: #475569;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>ローマ字れんしゅう 1000</h1>
+
+  <!-- 進捗表示 -->
+  <div class="progress-container" id="progress-area" style="display: none;">
+    <div class="progress-info">
+      <span>クリア数: <span id="cleared-count">0</span> 問</span>
+      <span>のこり: <span id="remaining-count">0</span> 問</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- コンテンツ表示域 -->
+  <div id="main-content">
+    <div class="loading">問題を読み込み中...</div>
+  </div>
+</div>
+
+<div class="back-link">
+  <a href="/">戻る</a>
+</div>
+
+<script>
+  let questions = [];
+  let currentQIndex = 0;
+  let clearedCount = 0;
+  let currentInput = "";
+  let isUpperCase = true;
+
+  // 「-（ハイフン/のばす）」をキー配列に追加
+  const keyLayout = [
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+    ["Z", "X", "C", "V", "B", "N", "M", "-", "DELETE"]
+  ];
+
+  // 1. JSONデータの非同期取得と初期化
+  async function init() {
+    try {
+      const response = await fetch('questions.json');
+      if (!response.ok) throw new Error('JSONの読み込みに失敗しました');
+
+      const rawData = await response.json();
+
+      // 問題データをシャッフル
+      questions = shuffleArray(rawData);
+
+      // 画面の構築
+      setupAppUI();
+      renderKeyboard();
+      showQuestion();
+
+      document.addEventListener("keydown", handlePhysicalKeyPress);
+    } catch (error) {
+      document.getElementById("main-content").innerHTML = 
+        `<div class="loading" style="color: #dc2626;">エラー: questions.json が読み込めません。<br>ファイル名と配置を確認してください。</div>`;
+      console.error(error);
+    }
+  }
+
+  // 配列をランダムに並び替える（ダステンフェルドの手法）
+  function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // UI骨格の生成
+  function setupAppUI() {
+    document.getElementById("progress-area").style.display = "block";
+
+    const mainContent = document.getElementById("main-content");
+    mainContent.innerHTML = `
+      <div class="card">
+        <div id="emoji" class="question-emoji">✏️</div>
+        <div id="kana" class="question-kana">...</div>
+        <div id="hint" class="target-hint">...</div>
+      </div>
+
+      <div id="display" class="input-display"></div>
+
+      <div class="toggle-container">
+        <button id="btn-upper" class="btn-toggle active" onclick="setCase('upper')">おおもじ (A)</button>
+        <button id="btn-lower" class="btn-toggle" onclick="setCase('lower')">こもじ (a)</button>
+      </div>
+
+      <div class="keyboard" id="keyboard"></div>
+      <div id="message" class="message"></div>
+    `;
+  }
+
+  // 次に入力すべき有効なキーの文字集合を取得（大文字）
+  function getNextValidKeys() {
+    if (questions.length === 0) return new Set();
+    const q = questions[currentQIndex];
+    const inputUpper = currentInput.toUpperCase();
+    const nextKeys = new Set();
+
+    q.valid.forEach(val => {
+      const valUpper = val.toUpperCase();
+      if (valUpper.startsWith(inputUpper) && valUpper.length > inputUpper.length) {
+        nextKeys.add(valUpper[inputUpper.length]);
+      }
+    });
+
+    return nextKeys;
+  }
+
+  // キーボード描画
+  function renderKeyboard() {
+    const kbContainer = document.getElementById("keyboard");
+    if (!kbContainer) return;
+    kbContainer.innerHTML = "";
+
+    const nextKeys = getNextValidKeys();
+
+    keyLayout.forEach(row => {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "key-row";
+
+      row.forEach(key => {
+        const btn = document.createElement("button");
+        if (key === "DELETE") {
+          btn.textContent = "けす";
+          btn.className = "key-btn backspace";
+          btn.onclick = () => handleBackspace();
+        } else {
+          btn.textContent = isUpperCase ? key : key.toLowerCase();
+          btn.className = key === "-" ? "key-btn symbol" : "key-btn";
+
+          // 次に入力すべきキーであれば強調表示用クラスを追加
+          if (nextKeys.has(key)) {
+            btn.classList.add("next-key");
+          }
+
+          btn.onclick = () => handleInputChar(key);
+        }
+        rowDiv.appendChild(btn);
+      });
+      kbContainer.appendChild(rowDiv);
+    });
+  }
+
+  // 出題処理
+  function showQuestion() {
+    if (questions.length === 0) return;
+
+    const q = questions[currentQIndex];
+    document.getElementById("emoji").textContent = q.emoji || "✏️";
+    document.getElementById("kana").textContent = q.kana;
+    document.getElementById("hint").textContent = `（ローマじ: ${q.hint}）`;
+
+    currentInput = "";
+    updateDisplay();
+    updateProgressUI();
+    renderKeyboard();
+
+    document.getElementById("message").textContent = "";
+    document.getElementById("display").classList.remove("correct");
+  }
+
+  // 進捗状況バーの更新
+  function updateProgressUI() {
+    const total = questions.length;
+    const remaining = total - clearedCount;
+    const percentage = total > 0 ? (clearedCount / total) * 100 : 0;
+
+    const clearedEl = document.getElementById("cleared-count");
+    const remainingEl = document.getElementById("remaining-count");
+    const progressBar = document.getElementById("progress-bar");
+
+    if (clearedEl) clearedEl.textContent = clearedCount;
+    if (remainingEl) remainingEl.textContent = remaining;
+    if (progressBar) progressBar.style.width = `${percentage}%`;
+  }
+
+  // 大文字/小文字切替
+  function setCase(caseType) {
+    isUpperCase = (caseType === 'upper');
+    document.getElementById("btn-upper").classList.toggle("active", isUpperCase);
+    document.getElementById("btn-lower").classList.toggle("active", !isUpperCase);
+    renderKeyboard();
+    updateDisplay();
+  }
+
+  // 文字入力判定
+  function handleInputChar(charUpper) {
+    if (questions.length === 0) return;
+
+    const q = questions[currentQIndex];
+    currentInput += charUpper.toUpperCase();
+    updateDisplay();
+
+    // valid配列内の文字列と判定（大文字に揃えて照合）
+    const isCorrect = q.valid.some(val => val.toUpperCase() === currentInput);
+    if (isCorrect) {
+      handleSuccess();
+    } else {
+      renderKeyboard();
+    }
+  }
+
+  // 1文字削除
+  function handleBackspace() {
+    currentInput = currentInput.slice(0, -1);
+    updateDisplay();
+    renderKeyboard();
+  }
+
+  // 表示更新
+  function updateDisplay() {
+    const displayEl = document.getElementById("display");
+    if (displayEl) {
+      displayEl.textContent = isUpperCase ? currentInput : currentInput.toLowerCase();
+    }
+  }
+
+  // 正解時の挙動
+  function handleSuccess() {
+    const displayEl = document.getElementById("display");
+    const msgEl = document.getElementById("message");
+
+    displayEl.classList.add("correct");
+    msgEl.textContent = "せいかい！ すごいね！ ✨";
+
+    const q = questions[currentQIndex];
+    if ('speechSynthesis' in window && q) {
+      // 進行中の読み上げをキャンセルして即座に発音
+      window.speechSynthesis.cancel();
+      
+      const uttr = new SpeechSynthesisUtterance(q.kana);
+      uttr.lang = 'ja-JP'; // 日本語を指定
+      uttr.rate = 1.0;    // 読み上げ速度（必要に応じて0.8などでゆっくりにも設定可）
+      uttr.pitch = 1.2;   // 子供向けに少し高めの声に設定
+      
+      window.speechSynthesis.speak(uttr);
+    }
+
+    clearedCount++;
+    updateProgressUI();
+    renderKeyboard();
+
+    setTimeout(() => {
+      currentQIndex = (currentQIndex + 1) % questions.length;
+      showQuestion();
+    }, 1000);
+  }
+
+  // 物理キーボード入力対応（アルファベットおよび「-」キーに対応）
+  function handlePhysicalKeyPress(e) {
+    if (/^[a-zA-Z\-]$/.test(e.key)) {
+      handleInputChar(e.key.toUpperCase());
+    } else if (e.key === "Backspace") {
+      handleBackspace();
+    }
+  }
+
+  // 起動
+  init();
+</script>
+</body>
+</html>
