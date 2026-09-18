@@ -1,0 +1,14 @@
+# ==============================================================================
+# Alacritty Configuration - GNOME Terminal Look & Feel
+# ==============================================================================
+[general]
+import = [
+    "~/.config/alacritty/themes/themes/ubuntu.toml"
+]
+
+[font]
+size = 14.0  # GNOME Terminalのサイズに合わせて調整してください
+
+[terminal.shell]
+program = "/usr/bin/tmux"
+args = ["new-session", "-A", "-s", "main"]
