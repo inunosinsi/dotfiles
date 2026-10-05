@@ -25,4 +25,4 @@ Linux (Ubuntu / Raspberry Pi OS) 環境向けの個人用設定ファイル (dot
 新しい環境 (Ubuntu または Raspberry Pi OS) で以下のコマンドを実行すると、必須ツールのインストールから GNU Stow による設定ファイルのシンボリックリンク展開まで全自動で行われます。
 
 ```bash
-bash -c "$(curl -fsSL [https://raw.githubusercontent.com/inunosinsi/dotfiles/main/bootstrap.sh](https://raw.githubusercontent.com/inunosinsi/dotfiles/main/bootstrap.sh))"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/inunosinsi/dotfiles/main/bootstrap.sh)"
