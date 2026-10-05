@@ -73,7 +73,7 @@ DOTFILES_DIR="$HOME/dotfiles"
 if [ ! -d "$DOTFILES_DIR" ]; then
     info "dotfiles ディレクトリが存在しないため、Git リポジトリをクローンします..."
     # TODO: ご自身の GitHub リポジトリ URL に変更してください
-    GIT_REPO_URL="https://github.com/YOUR_USERNAME/dotfiles.git"
+    GIT_REPO_URL="https://github.com/inunosinsi/dotfiles.git"
     git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
 fi
 
