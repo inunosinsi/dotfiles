@@ -25,6 +25,3 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
-
-alias lego="cd /home/saito/workspace/LegoGears/lego_gears"
-#alias uefi="sudo systemctl reboot --firmware-setup"
