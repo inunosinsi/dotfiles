@@ -5,7 +5,7 @@ Linux (Ubuntu / Raspberry Pi OS) 環境向けの個人用設定ファイル (dot
 
 ---
 
-## 🛠 管理パッケージ
+## 管理パッケージ
 
 以下のツール・設定を Stow でパッケージ単位管理しています。
 
@@ -20,7 +20,7 @@ Linux (Ubuntu / Raspberry Pi OS) 環境向けの個人用設定ファイル (dot
 
 ---
 
-## 🚀 新規環境セットアップ (Setup)
+## 新規環境セットアップ (Setup)
 
 新しい環境 (Ubuntu または Raspberry Pi OS) で以下のコマンドを実行すると、必須ツールのインストールから GNU Stow による設定ファイルのシンボリックリンク展開まで全自動で行われます。
 
