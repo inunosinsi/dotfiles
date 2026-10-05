@@ -46,7 +46,9 @@ PACKAGES=(
 )
 
 # GUI環境（Desktop）かどうかの判定（Alacritty インストール用）
+IS_GUI=false
 if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || dpkg -l | grep -q xserver-xorg; then
+    IS_GUI=true
     info "デスクトップ環境を検出したため、Alacritty もインストール対象に追加します。"
     PACKAGES+=(alacritty)
 else
@@ -104,7 +106,58 @@ done
 
 success "すべての dotfiles 設定を展開しました。"
 
-# --- 4. デフォルトシェルの変更 ---
+# --- 4. Raspberry Pi OS ショートカットキーの設定 (Ctrl + Alt + 5 -> Alacritty) ---
+if [ "$IS_GUI" = true ]; then
+    info "Raspberry Pi OS のショートカットキー設定 (Ctrl+Alt+5 -> Alacritty) を確認・適用します..."
+
+    KEYBIND_BLOCK='    <keybind key="C-A-5">
+      <action name="Execute">
+        <command>alacritty</command>
+      </action>
+    </keybind>'
+
+    # (A) Wayland / Labwc 環境の設定 (Raspberry Pi OS Bookworm 以降)
+    LABWC_CONF_DIR="$HOME/.config/labwc"
+    LABWC_RC="$LABWC_CONF_DIR/rc.xml"
+
+    if [ -d "/etc/xdg/labwc" ] || [ -f "$LABWC_RC" ]; then
+        mkdir -p "$LABWC_CONF_DIR"
+        if [ ! -f "$LABWC_RC" ]; then
+            cp /etc/xdg/labwc/rc.xml "$LABWC_RC"
+            info "Labwc のデフォルト設定ファイルを $LABWC_RC にコピーしました。"
+        fi
+
+        # 既に設定済みでないか確認して追加
+        if ! grep -q "C-A-5" "$LABWC_RC"; then
+            # </keyboard> の直前に keybind ブロックを挿入
+            sed -i "/<\/keyboard>/i $KEYBIND_BLOCK" "$LABWC_RC"
+            info "Labwc (Wayland) に Ctrl+Alt+5 のキーバインドを追加しました。"
+        fi
+
+        # 設定のリロード
+        if command -v labwc &> /dev/null && [ -n "$WAYLAND_DISPLAY" ]; then
+            labwc --reconfigure || true
+        fi
+    fi
+
+    # (B) X11 / Openbox 環境の設定 (Bullseye 以前 または X11 モード)
+    OPENBOX_CONF_DIR="$HOME/.config/openbox"
+    OPENBOX_RC="$OPENBOX_CONF_DIR/lxde-pi-rc.xml"
+
+    if [ -f "$OPENBOX_RC" ]; then
+        if ! grep -q "C-A-5" "$OPENBOX_RC"; then
+            sed -i "/<\/keyboard>/i $KEYBIND_BLOCK" "$OPENBOX_RC"
+            info "Openbox (X11) に Ctrl+Alt+5 のキーバインドを追加しました。"
+        fi
+
+        # 設定のリロード
+        if command -v openbox &> /dev/null && [ -n "$DISPLAY" ]; then
+            openbox --reconfigure || true
+        fi
+    fi
+fi
+
+# --- 5. デフォルトシェルの変更 ---
 CURRENT_SHELL=$(basename "$SHELL")
 ZSH_PATH=$(which zsh)
 
