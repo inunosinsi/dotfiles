@@ -41,6 +41,8 @@ PACKAGES=(
     stow
     git
     curl
+    zoxide
+    tree
 )
 
 # GUI環境（Desktop）かどうかの判定（Alacritty インストール用）
